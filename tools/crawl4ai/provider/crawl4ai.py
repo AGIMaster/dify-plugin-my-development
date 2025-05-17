@@ -19,7 +19,7 @@ class Crawl4AIProvider(ToolProvider):
             
             # 准备请求数据
             payload = {
-                "urls": "https://example.com",
+                "urls": ["https://example.com"],
                 "priority": 10
             }
             
