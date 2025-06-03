@@ -14,39 +14,34 @@ class Crawl4AIProvider(ToolProvider):
             if not server_url or not server_url.startswith("http"):
                 raise ToolProviderCredentialValidationError("服务器URL无效，必须以http或https开头")
             
-            # 使用/crawl端点测试API连接
-            test_url = f"{server_url.rstrip('/')}/crawl"
-            
-            # 准备请求数据
-            payload = {
-                "urls": ["https://example.com"],
-                "priority": 10
-            }
-            
-            # 设置请求头
-            headers = {}
-            if api_token:
-                headers["Authorization"] = f"Bearer {api_token}"
-            
+            # 简单的连接测试 - 尝试访问服务器根路径或健康检查端点
             try:
-                # 发送测试请求
-                response = requests.post(
+                # 先尝试访问根路径进行基本连接测试
+                test_url = f"{server_url.rstrip('/')}"
+                
+                headers = {}
+                if api_token:
+                    headers["Authorization"] = f"Bearer {api_token}"
+                
+                response = requests.get(
                     test_url,
                     headers=headers,
-                    json=payload,
                     timeout=5
                 )
                 
-                if response.status_code != 200:
-                    raise ToolProviderCredentialValidationError(f"连接到Crawl4AI服务器失败，状态码：{response.status_code}")
+                # 只要能连接到服务器就认为验证成功
+                # 不需要检查具体的响应内容
+                if response.status_code >= 500:
+                    raise ToolProviderCredentialValidationError(f"服务器内部错误，状态码：{response.status_code}")
                 
-                # 验证响应是否包含task_id
-                result = response.json()
-                if "task_id" not in result:
-                    raise ToolProviderCredentialValidationError("无效的API响应格式，缺少task_id")
-                
+            except requests.exceptions.ConnectionError:
+                raise ToolProviderCredentialValidationError("无法连接到Crawl4AI服务器，请检查服务器URL是否正确")
+            except requests.exceptions.Timeout:
+                raise ToolProviderCredentialValidationError("连接Crawl4AI服务器超时，请检查网络连接")
             except requests.exceptions.RequestException as e:
                 raise ToolProviderCredentialValidationError(f"连接到Crawl4AI服务器失败：{str(e)}")
                 
         except Exception as e:
-            raise ToolProviderCredentialValidationError(str(e))
+            if isinstance(e, ToolProviderCredentialValidationError):
+                raise e
+            raise ToolProviderCredentialValidationError(f"验证凭证时发生错误：{str(e)}")

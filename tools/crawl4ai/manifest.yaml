@@ -1,4 +1,4 @@
-version: 0.0.2
+version: 0.0.3
 type: "plugin"
 author: "agimaster"
 created_at: '2025-03-30T01:43:42.658609186Z'
@@ -17,7 +17,7 @@ meta:
     entrypoint: main
     language: python
     version: '3.11'
-  version: 0.0.2
+  version: 0.0.3
 privacy: "./privacy.md"
 name: crawl4ai
 plugins:

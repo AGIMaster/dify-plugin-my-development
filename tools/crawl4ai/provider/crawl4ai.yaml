@@ -9,7 +9,7 @@ credentials_for_provider:
     placeholder:
       en_US: Please enter your Crawl4AI API token
       zh_Hans: 请输入您的Crawl4AI API令牌
-    required: true
+    required: false
     type: secret-input
     url: https://docs.crawl4ai.com/core/docker-deployment/
   server_url:
